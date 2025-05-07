@@ -7,7 +7,7 @@ body:
     id: category
     attributes:
       label: Category
-      placeholder: "Academia, Government, Company, etc."
+      placeholder: "Academia, Government, Company …"
   - type: dropdown
     id: reward
     attributes:
@@ -21,9 +21,9 @@ body:
     id: description
     attributes:
       label: Problem description
-      description: A short but complete summary of the challenge
+      description: "Short but complete summary"
   - type: input
     id: contact
     attributes:
-      label: Contact method
-      placeholder: "email@example.com or GitHub username"
+      label: Contact
+      placeholder: "email@example.com"
