@@ -11,20 +11,25 @@
   </style>
 </head>
 <body>
-  <h1>🔓 Open Problems</h1>
+  <h1>Open Problems</h1>
 
-  <!-- Minimal “drawer” form -->
+  <!-- Toggle button -->
   <button id="openForm" class="button">+ Add a problem</button>
 
-  <div id="formPane">
+  <!-- Minimal email-only form (Formspree) -->
+  <!--  Replace the action URL with YOUR form ID  -->
+  <form id="formPane"
+        action="https://formspree.io/f/xbjnqzda"
+        method="POST">
+
     <h3>Submit an unsolved problem</h3>
 
     <label>Category
-      <input id="fCat" placeholder="Academia, Government, Company …">
+      <input name="Category" required placeholder="Academia, Government …">
     </label>
 
     <label>Reward / Budget
-      <select id="fReward">
+      <select name="Reward">
         <option>No bounty</option>
         <option>&lt; $1 000</option>
         <option>$1 000 – $10 000</option>
@@ -33,44 +38,28 @@
     </label>
 
     <label>Problem description
-      <textarea id="fDesc" rows="4"></textarea>
+      <textarea name="Description" rows="4" required></textarea>
     </label>
 
-    <label>Contact (email or GitHub user)
-      <input id="fContact">
+    <label>Contact (email)
+      <input type="email" name="Contact" required>
     </label>
 
-    <button id="submitBtn" class="button">Submit (opens GitHub)</button>
-  </div>
+    <!-- Honeypot to deter bots -->
+    <input type="text" name="_gotcha" style="display:none">
 
-  <!-- Problems will be injected here -->
+    <button class="button" type="submit">Submit</button>
+  </form>
+
+  <!-- List of problems (populated by main.js) -->
   <div id="content"></div>
 
-  <!-- Listing logic -->
   <script src="main.js"></script>
-
   <script>
-    /*=== Simple drawer behaviour ===*/
-    openForm.onclick = () => formPane.style.display =
-      formPane.style.display === 'none' ? 'block' : 'none';
-
-    /*=== Build a pre-filled GitHub Issue URL and open it ===*/
-    submitBtn.onclick = () => {
-      const user   = location.hostname.split('.')[0];          // kajin-0
-      const repo   = 'unsolved-problems';
-      const title  = encodeURIComponent('[Problem] ' + (fDesc.value.slice(0,60) || 'New issue'));
-      const body   = encodeURIComponent(
-`Category: ${fCat.value}
-Reward / Budget: ${fReward.value}
-
-${fDesc.value}
-
-Contact: ${fContact.value}`.trim());
-
-      const url = `https://github.com/${user}/${repo}/issues/new` +
-                  `?labels=unsolved&title=${title}&body=${body}`;
-      window.open(url,'_blank');
-    };
+    /* simple show/hide toggle */
+    openForm.onclick = () =>
+      formPane.style.display =
+        formPane.style.display === 'none' ? 'block' : 'none';
   </script>
 </body>
 </html>
