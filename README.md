@@ -1,16 +1,13 @@
-# Unsolved Problems Board (seeded demo)
+# Unsolved Problems Board (auto‑user detection)
 
-A zero-backend board for posting and browsing unsolved problems, built on
-**GitHub Pages** and **GitHub Issues**.
+A zero‑backend board for unsolved problems on **GitHub Pages**.
+No hard‑coded username—works immediately after forking.
 
-This starter version pre-loads three famous Clay Millennium problems
-via `docs/seeds.json` so you have content on first deploy.
+## Deploy
 
-## Quick start
+1. Upload / push to a repo named **unsolved-problems** under your account.
+2. Enable **Settings → Pages → Source → /docs folder**.
+3. Visit `https://<your-user>.github.io/unsolved-problems/`.
 
-1. Replace `<user>` in **docs/index.html** and **docs/main.js** with your GitHub username.
-2. Push / upload the repo and enable **Settings → Pages → Source → `/docs` folder**.
-3. Visit `https://<user>.github.io/unsolved-problems/`.
-
-Add or remove starter problems by editing `docs/seeds.json`.  User‑submitted
-problems go through the “+ Add a problem” Issue Form and appear instantly.
+The “+ Add a problem” button and issue fetcher automatically use your account name
+extracted from the page’s hostname, so no manual edits are required.
