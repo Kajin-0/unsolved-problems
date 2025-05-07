@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Riemann Hypothesis",
+    "category": "Academia",
+    "reward": "$1 000 000 (Clay Mathematics Institute)",
+    "description": "Prove that every non‑trivial zero of the Riemann zeta‑function ζ(s) has real part 1/2.",
+    "url": "https://www.claymath.org/millennium-problems/riemann-hypothesis",
+    "posted": "2000-05-24",
+    "contact": "prize@claymath.org"
+  },
+  {
+    "title": "P vs NP Problem",
+    "category": "Academia",
+    "reward": "$1 000 000 (Clay Mathematics Institute)",
+    "description": "Determine whether every problem whose solution can be verified in polynomial time can also be solved in polynomial time (P = NP?)",
+    "url": "https://www.claymath.org/millennium-problems/p-vs-np-problem",
+    "posted": "2000-05-24",
+    "contact": "prize@claymath.org"
+  },
+  {
+    "title": "Navier–Stokes Existence & Smoothness",
+    "category": "Academia",
+    "reward": "$1 000 000 (Clay Mathematics Institute)",
+    "description": "Prove global existence and smoothness (or show finite‑time blow‑up) for 3‑D incompressible Navier–Stokes equations on ℝ³.",
+    "url": "https://www.claymath.org/millennium-problems/navier-stokes-equation",
+    "posted": "2000-05-24",
+    "contact": "prize@claymath.org"
+  }
+]
