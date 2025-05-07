@@ -1,76 +1,67 @@
-/* === CONFIG: Google Sheet responses CSV ====================== */
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgI5m7L1L0mj8qV8ZczeM107XlGN2gojbQx17dQGB1dS5dJFIf13Xr1cuIw0xY9O30C9WmXBsBsESo/pub?output=csv";
-/* ============================================================== */
+/* 1️⃣  YOUR Google-Sheet CSV (Responses → Publish to web → CSV URL) */
+const csvURL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgI5m7L1L0mj8qV8ZczeM107XlGN2gojbQx17dQGB1dS5dJFIf13Xr1cuIw0xY9O30C9WmXBsBsESo/pub?output=csv";
 
-const user = location.hostname.split('.')[0];
-const repo = "unsolved-problems";
-const api  = `https://api.github.com/repos/${user}/${repo}/issues?state=open&per_page=100`;
-
-/* --- CSV text → array of objects ----------------------------- */
-function parseCSV(text){
-  const lines = text.trim().split(/\r?\n/);
-  const headers = lines.shift().split(',').map(h=>h.replace(/(^"|"$)/g,''));
-  return lines.map(row=>{
-    const cells=row.split(',').map(c=>c.replace(/(^"|"$)/g,''));
-    return Object.fromEntries(cells.map((c,i)=>[headers[i],c]));
-  });
+/* ---------- helpers ------------------------------------------ */
+function csvToObjects(text) {
+  try {
+    const lines   = text.trim().split(/\r?\n/);
+    const headers = lines.shift().split(',').map(h => h.replace(/^"|"$/g, ''));
+    return lines.map(row => {
+      const cells = row.split(',').map(c => c.replace(/^"|"$/g, ''));
+      return Object.fromEntries(cells.map((c, i) => [headers[i], c]));
+    });
+  } catch (err) {
+    console.error("CSV parse error:", err);
+    return [];
+  }
 }
 
-/* --- Seeds → pseudo-issues ----------------------------------- */
-function seedToIssue(p){
+function toIssue(obj) {
+  /* maps either a seed or a CSV row into a display-friendly shape */
   return {
-    title     : p.title,
-    html_url  : p.url,
-    created_at: (p.posted||"2000-01-01")+"T00:00:00Z",
-    body:
-`Category: ${p.category}
-Reward / Budget: ${p.reward}
-${p.description}
-Contact: ${p.contact}`
+    category : obj.category   || obj.Category   || "Uncategorised",
+    reward   : obj.reward     || obj.Reward     || "-",
+    title    : obj.title      || (obj.Description || "Untitled").slice(0, 60),
+    description: obj.description || obj.Description || "",
+    contact  : obj.contact    || obj.Contact    || "",
   };
 }
 
-/* --- Fetch seeds, sheet rows, and (optional) GitHub issues ---- */
-Promise.all([
-  fetch("seeds.json").then(r=>r.json()).catch(()=>[]),
-  fetch(csvURL).then(r=>r.text()).then(parseCSV).catch(()=>[]),
-  fetch(api).then(r=>r.ok?r.json():[]).catch(()=>[])
-]).then(([seeds,sheet,issues])=>{
+/* ---------- 1. load seeds ------------------------------------ */
+fetch("seeds.json")
+  .then(r => r.json())
+  .then(seeds => seeds.map(toIssue))
+  .then(render)               // render seeds immediately
+  .catch(err => console.error("Could not load seeds.json", err));
 
-  /* Map Google-sheet rows to pseudo-issues */
-  const sheetIssues = sheet.map(r=>({
-    title     : (r.Description||"Untitled").slice(0,60),
-    html_url  : "#",
-    created_at: new Date().toISOString(),
-    body:
-`Category: ${r.Category}
-Reward / Budget: ${r.Reward}
+/* ---------- 2. load Google-Form responses -------------------- */
+fetch(csvURL)
+  .then(r => r.text())
+  .then(csvToObjects)
+  .then(rows => rows.map(toIssue))
+  .then(render)               // append new rows
+  .catch(err => console.warn("No sheet rows yet or fetch failed:", err));
 
-${r.Description}
+/* ---------- render (idempotent) ------------------------------ */
+function render(items) {
+  const container = document.getElementById("content");
 
-Contact: ${r.Contact}`
-  }));
+  /* merge into global list stored on #content */
+  container.allItems = (container.allItems || []).concat(items);
 
-  const items = [
-    ...seeds.map(seedToIssue),
-    ...sheetIssues,
-    ...issues
-  ];
-
-  /* Group by Category and render */
-  const byCat=new Map();
-  items.forEach(i=>{
-    const cat=(i.body.match(/Category:\\s*(.*)/i)||[,"Uncategorised"])[1].trim();
-    (byCat.get(cat)??byCat.set(cat,[]).get(cat)).push(i);
+  /* clear and rebuild grouped view */
+  container.innerHTML = "";
+  const byCat = {};
+  container.allItems.forEach(it => {
+    const c = it.category.trim() || "Uncategorised";
+    (byCat[c] ??= []).push(it);
   });
 
-  const out=document.getElementById("content");
-  [...byCat.keys()].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"}))
-    .forEach(cat=>{
-      const li=byCat.get(cat).map(i=>{
-        const reward=(i.body.match(/Reward \\/ Budget:\\s*(.*)/i)||[])[1]||"-";
-        return `<li>${i.title} — <em>${reward}</em></li>`;
-      }).join("");
-      out.insertAdjacentHTML("beforeend",`<h3>${cat}</h3><ul>${li}</ul>`);
+  Object.keys(byCat).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+    .forEach(cat => {
+      const list = byCat[cat].map(it =>
+        `<li>${it.title} — <em>${it.reward}</em></li>`).join("");
+      container.insertAdjacentHTML("beforeend", `<h3>${cat}</h3><ul>${list}</ul>`);
     });
-}).catch(console.error);
+}
