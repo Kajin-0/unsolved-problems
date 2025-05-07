@@ -11,6 +11,7 @@
   </style>
 
   <!-- Papa Parse CSV parser -->
+  <!-- Note: Papa Parse is included but not used by the current main.js, which fetches JSON -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
@@ -29,7 +30,7 @@
   <!-- list goes here -->
   <div id="content">Loading problems…</div>
 
-  <script src="main.js"></script>
+  <script src="main.js"></script> <!-- This line loads your updated main.js -->
   <script> openForm.onclick=()=>formPane.style.display=formPane.style.display==='none'?'block':'none'; </script>
 </body>
 </html>
