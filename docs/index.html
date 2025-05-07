@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Open‑Problems Board</title>
+  <title>Open Problems Board</title>
   <link rel="stylesheet" href="https://unpkg.com/milligram" />
   <style>body{max-width:760px;margin:auto;padding:2rem}</style>
 </head>
@@ -18,12 +18,12 @@
 
   <script src="main.js"></script>
   <script>
-    /* figure out the GitHub username from the current host */
-    (function() {
-      const user = location.hostname.split('.')[0];   // kajin-0 from kajin-0.github.io
-      const link = `https://github.com/${user}/unsolved-problems/issues/new?template=problem.yml`;
-      document.getElementById('new-problem-btn').href = link;
-    })();
+    // Dynamically build the issue form URL
+    const user = window.location.hostname.split('.')[0]; // "kajin-0"
+    const repo = "unsolved-problems";
+    const template = "problem.yml";
+    const link = `https://github.com/${user}/${repo}/issues/new?template=${template}`;
+    document.getElementById("new-problem-btn").href = link;
   </script>
 </body>
 </html>
