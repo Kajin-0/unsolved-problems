@@ -2,23 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Open-Problems Board</title>
+  <title>Open‑Problems Board</title>
   <link rel="stylesheet" href="https://unpkg.com/milligram" />
+  <style>body{max-width:760px;margin:auto;padding:2rem}</style>
 </head>
 <body>
   <h1>🔓 Open Problems</h1>
 
   <p>
-    <!-- Replace <user> with your GitHub username -->
-    <a class="button"
-       href="https://github.com/<user>/unsolved-problems/issues/new?template=problem.yml">
-       + Add a problem
-    </a>
+    <a id="new-problem-btn" class="button">+ Add a problem</a>
   </p>
 
   <!-- Problems will be injected here -->
   <div id="content"></div>
 
   <script src="main.js"></script>
+  <script>
+    /* figure out the GitHub username from the current host */
+    (function() {
+      const user = location.hostname.split('.')[0];   // kajin-0 from kajin-0.github.io
+      const link = `https://github.com/${user}/unsolved-problems/issues/new?template=problem.yml`;
+      document.getElementById('new-problem-btn').href = link;
+    })();
+  </script>
 </body>
 </html>

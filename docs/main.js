@@ -1,7 +1,7 @@
-    /* docs/main.js — replace <user> with your GitHub username once */
-    const owner  = "<user>";
-    const repo   = "unsolved-problems";
-    const apiURL = `https://api.github.com/repos/${owner}/${repo}/issues` +
+    /* docs/main.js — no hard‑coded username */
+    const user  = window.location.hostname.split('.')[0];  // e.g. kajin-0
+    const repo  = "unsolved-problems";
+    const apiURL = `https://api.github.com/repos/${user}/${repo}/issues` +
                    `?state=open&labels=unsolved&per_page=100`;
 
     function seedToIssue(p) {
@@ -30,7 +30,7 @@ Contact: ${p.contact}`
       });
 
       const container = document.getElementById("content");
-      [...byCat.keys()].sort((a,b) => a.localeCompare(b, undefined, {sensitivity:"base"}))
+      [...byCat.keys()].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:"base"}))
         .forEach(cat => {
           const list = byCat.get(cat).map(i => {
             const reward = (i.body.match(/Reward \/ Budget:\s*(.*)/i)||[])[1] || "-";
