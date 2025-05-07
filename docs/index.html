@@ -2,28 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Open Problems Board</title>
+  <title>Open-Problems Board</title>
   <link rel="stylesheet" href="https://unpkg.com/milligram" />
-  <style>body{max-width:760px;margin:auto;padding:2rem}</style>
+  <style>
+    body{max-width:760px;margin:auto;padding:2rem}
+    #formPane{border:1px solid #ccc;padding:1rem;margin-top:1rem;display:none}
+    label{display:block;margin:.6rem 0}
+  </style>
 </head>
 <body>
   <h1>🔓 Open Problems</h1>
 
-  <p>
-    <a id="new-problem-btn" class="button">+ Add a problem</a>
-  </p>
+  <!-- Minimal “drawer” form -->
+  <button id="openForm" class="button">+ Add a problem</button>
+
+  <div id="formPane">
+    <h3>Submit an unsolved problem</h3>
+
+    <label>Category
+      <input id="fCat" placeholder="Academia, Government, Company …">
+    </label>
+
+    <label>Reward / Budget
+      <select id="fReward">
+        <option>No bounty</option>
+        <option>&lt; $1 000</option>
+        <option>$1 000 – $10 000</option>
+        <option>&gt; $10 000</option>
+      </select>
+    </label>
+
+    <label>Problem description
+      <textarea id="fDesc" rows="4"></textarea>
+    </label>
+
+    <label>Contact (email or GitHub user)
+      <input id="fContact">
+    </label>
+
+    <button id="submitBtn" class="button">Submit (opens GitHub)</button>
+  </div>
 
   <!-- Problems will be injected here -->
   <div id="content"></div>
 
+  <!-- Listing logic -->
   <script src="main.js"></script>
+
   <script>
-    // Dynamically build the issue form URL
-    const user = window.location.hostname.split('.')[0]; // "kajin-0"
-    const repo = "unsolved-problems";
-    const template = "problem.yml";
-    const link = `https://github.com/${user}/${repo}/issues/new?template=${template}`;
-    document.getElementById("new-problem-btn").href = link;
+    /*=== Simple drawer behaviour ===*/
+    openForm.onclick = () => formPane.style.display =
+      formPane.style.display === 'none' ? 'block' : 'none';
+
+    /*=== Build a pre-filled GitHub Issue URL and open it ===*/
+    submitBtn.onclick = () => {
+      const user   = location.hostname.split('.')[0];          // kajin-0
+      const repo   = 'unsolved-problems';
+      const title  = encodeURIComponent('[Problem] ' + (fDesc.value.slice(0,60) || 'New issue'));
+      const body   = encodeURIComponent(
+`Category: ${fCat.value}
+Reward / Budget: ${fReward.value}
+
+${fDesc.value}
+
+Contact: ${fContact.value}`.trim());
+
+      const url = `https://github.com/${user}/${repo}/issues/new` +
+                  `?labels=unsolved&title=${title}&body=${body}`;
+      window.open(url,'_blank');
+    };
   </script>
 </body>
 </html>
