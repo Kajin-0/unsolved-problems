@@ -1,46 +1,43 @@
-/* ==========================================================
-   CONFIG – Google Sheet published as JSON via OpenSheet
-   ---------------------------------------------------------- */
-const sheetID  = "1vRgI5m7L1L0mj8qV8ZczeM107XlGN2gojbQx17dQGB1dS5dJFIf13Xr1cuIw0xY9O30C9WmXBsBsESo";
-const sheetTab = "Form Responses 2";                // exact tab name
-const jsonURL  = `https://opensheet.elk.sh/${sheetID}/${encodeURIComponent(sheetTab)}`;
+/* -------------------------------------------------------------
+   CONFIG  –  Spreadsheet ID  +  exact tab name
+   ------------------------------------------------------------- */
+const sheetID = "1vRgI5m7L1L0mj8qV8ZczeM107XlGN2gojbQx17dQGB1dS5dJFIf13Xr1cuIw0xY9O30C9WmXBsBsESo";
+const tabName = "Form_Responses1";               // exact tab label (with underscore)
+const jsonURL = `https://opensheet.elk.sh/${sheetID}/${encodeURIComponent(tabName)}`;
 
-/* ==========================================================
-   TARGET ELEMENT
-   ---------------------------------------------------------- */
+/* Target element */
 const container = document.getElementById("content");
 container.textContent = "Loading problems…";
 
-/* ==========================================================
-   FETCH  ▸ JSON  ▸ RENDER
-   ---------------------------------------------------------- */
+/* -------------------------------------------------------------
+   Fetch  → JSON  → Render
+   ------------------------------------------------------------- */
 fetch(jsonURL)
   .then(r => r.json())
   .then(render)
   .catch(err => {
     console.error(err);
     container.textContent =
-      "Could not load problems. Check that the sheet is published to the web.";
+      "Could not load problems. Check that the sheet is published (File → Share → Publish to web) and the tab name matches exactly.";
   });
 
-/* ----------------------------------------------------------
-   Render function
-   ---------------------------------------------------------- */
+/* -------------------------------------------------------------
+   Render helper
+   ------------------------------------------------------------- */
 function render(rows){
-  if(!rows.length){
+  if (!rows.length){
     container.textContent = "No problems yet.";
     return;
   }
 
-  /* group by Category column */
+  /* Group by Category column */
   const byCat = {};
   rows.forEach(r=>{
-    if(!r.Description) return;                       // skip blank rows
+    if(!r.Description) return;                             // skip blank rows
     const cat = (r.Category || "Uncategorised").trim();
     (byCat[cat] ??= []).push(r);
   });
 
-  /* build HTML */
   container.innerHTML = "";
   Object.keys(byCat)
     .sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"}))
