@@ -1,34 +1,40 @@
-/* Google-Sheet CSV (Publish-to-web → CSV link) */
+/* Google-Sheet CSV (Publish-to-web URL) */
 const csvURL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgI5m7L1L0mj8qV8ZczeM107XlGN2gojbQx17dQGB1dS5dJFIf13Xr1cuIw0xY9O30C9WmXBsBsESo/pub?output=csv";
 
-/* DOM target */
+/* Target element */
 const container = document.getElementById("content");
 
-/* fetch + parse + render */
+/* Load, parse, render */
 fetch(csvURL)
   .then(r => r.text())
   .then(text => Papa.parse(text, {header:true}).data)
-  .then(rows  => render(rows))
-  .catch(err  => {container.textContent="No problems found.";console.error(err);});
+  .then(render)
+  .catch(err => {container.textContent="No problems yet."; console.error(err);});
 
-/* simple renderer --------------------------------------------------*/
+/* ---------- render function ----------------------------------- */
 function render(rows){
   if(!rows.length){ container.textContent="No problems yet."; return; }
 
-  /* group by Category field */
+  /* Group by Category column */
   const byCat = {};
   rows.forEach(r=>{
-    const cat = (r.Category || "Uncategorised").trim();
+    if(!r["Description"]) return;                       /* skip blank rows */
+    const cat = (r["Category"] || "Uncategorised").trim();
     (byCat[cat] ??= []).push(r);
   });
 
-  container.innerHTML = "";
+  /* Build HTML */
+  container.innerHTML="";
   Object.keys(byCat).sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"}))
     .forEach(cat=>{
       const list = byCat[cat]
-        .map(r=>`<li>${r.Description.slice(0,60)} — <em>${r.Reward}</em></li>`)
+        .map(r=>{
+          const reward = r["Reward Budget"] || "-";
+          const desc   = r["Description"].slice(0,60);
+          return `<li>${desc} — <em>${reward}</em></li>`;
+        })
         .join("");
-      container.insertAdjacentHTML("beforeend",`<h3>${cat}</h3><ul>${list}</ul>`);
+      container.insertAdjacentHTML("beforeend", `<h3>${cat}</h3><ul>${list}</ul>`);
     });
 }
