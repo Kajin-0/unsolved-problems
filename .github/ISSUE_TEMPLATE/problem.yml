@@ -1,29 +1,29 @@
-name: "🔧 New Unsolved Problem"
-description: "List a problem you’d like someone to solve"
-title: "[Open Problem] "
+name: "New Unsolved Problem"
+description: "Submit a problem you'd like solved"
+title: "[Problem] "
 labels: ["unsolved"]
 body:
   - type: input
     id: category
     attributes:
       label: Category
-      placeholder: "e.g. Academia, Government, Private Company"
+      placeholder: "Academia, Government, Company, etc."
   - type: dropdown
     id: reward
     attributes:
       label: Reward / Budget
       options:
-        - "No bounty (open research)"
+        - "No bounty"
         - "< $1 000"
         - "$1 000 – $10 000"
         - "> $10 000"
   - type: textarea
     id: description
     attributes:
-      label: Problem Description
-      description: "Short but complete statement of the challenge"
+      label: Problem description
+      description: A short but complete summary of the challenge
   - type: input
     id: contact
     attributes:
-      label: Contact
+      label: Contact method
       placeholder: "email@example.com or GitHub username"
