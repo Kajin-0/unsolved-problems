@@ -22,11 +22,6 @@ function linkify(inputText) {
     const wwwPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
     replacedText = replacedText.replace(wwwPattern, '$1<a href="http://$2" target="_blank" rel="noopener noreferrer">$2</a>');
 
-    // Email addresses
-    // const emailPattern = /([\w.-]+@[\w.-]+\.[\w.-]+)/gim;
-    // replacedText = replacedText.replace(emailPattern, '<a href="mailto:$1">$1</a>');
-    // Decided against auto-linking emails in description as there's a dedicated contact field.
-
     return replacedText;
 }
 
@@ -141,8 +136,7 @@ function renderProblems(rows){
       const listItems = byCat[cat].map(r => {
         const reward = r["Reward Budget"]?.trim() || "Not specified";
         let description = r.Description?.trim() || "No description provided.";
-        // Linkify URLs in the description
-        description = linkify(description); // <<< APPLY LINKIFY FUNCTION HERE
+        description = linkify(description); // Linkify URLs
 
         const contactEmail = r["Contact (email)"]?.trim() || "";
         const problemSubject = r["Problem Subject"]?.trim() || "Untitled Problem";
@@ -174,14 +168,13 @@ function renderProblems(rows){
                 </span>`;
         }
 
-        // Note: The 'description' variable below now contains HTML with linked URLs
         return `
             <li class="problem-item">
                 <div class="problem-item-header">
                     <span class="problem-category-badge">${r.Category || "Uncategorised"}</span>
                     <h4>${problemSubject}</h4>
                 </div>
-                <p class="problem-description">${description}</p> {/* This 'description' now has <a> tags */}
+                <p class="problem-description">${description}</p> 
                 <div class="problem-meta">
                     <span class="problem-reward"><strong>Reward:</strong> ${reward}</span>
                     ${contactHTML}
