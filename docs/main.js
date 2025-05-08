@@ -123,8 +123,6 @@ function renderProblems(rows){
         const reward = r["Reward Budget"]?.trim() || "Not specified";
         const description = r.Description?.trim() || "No description provided.";
         const contactEmail = r["Contact (email)"]?.trim() || "";
-        // Ensure "Problem Subject" is used for the title.
-        // Fallback to "Untitled Problem" if the field is missing or empty.
         const problemSubject = r["Problem Subject"]?.trim() || "Untitled Problem";
         const timestampStr = r.Timestamp?.trim();
         let formattedTimestamp = "Not specified";
@@ -158,7 +156,7 @@ function renderProblems(rows){
             <li class="problem-item">
                 <div class="problem-item-header">
                     <span class="problem-category-badge">${r.Category || "Uncategorised"}</span>
-                    <h4>${problemSubject}</h4> {/* This should be the actual title */}
+                    <h4>${problemSubject}</h4>
                 </div>
                 <p class="problem-description">${description}</p>
                 <div class="problem-meta">
