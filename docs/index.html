@@ -3,11 +3,169 @@
 <head>
   <meta charset="utf-8" />
   <title>Open Problems</title>
-  <link rel="stylesheet" href="https://unpkg.com/milligram" />
+  <link rel="stylesheet" href="https://unpkg.com/milligram@1.4.1/dist/milligram.min.css" />
   <style>
-    body{max-width:760px;margin:auto;padding:2rem}
-    #formPane{display:none;margin-top:1rem}
-    iframe{width:100%;height:1211px;border:1px solid #ccc}
+    body {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+      font-family: 'Roboto', sans-serif; /* Milligram default */
+      color: #333;
+      background-color: #fdfdfd;
+    }
+    h1, h2, h3, h4 {
+      color: #1a1a1a;
+      font-weight: 300; /* Milligram uses lighter font-weight for headings */
+    }
+    h1 {
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 500; /* Make main title bolder */
+      color: #333;
+    }
+    #openForm {
+      margin-bottom: 2rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #9b4dca; /* Milligram primary color */
+      border-color: #9b4dca;
+    }
+    #openForm:hover {
+      background-color: #606c76; /* Milligram secondary color for hover */
+      border-color: #606c76;
+    }
+    #formPane {
+      display: none;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      padding:1rem;
+      border:1px solid #eee;
+      border-radius:4px;
+      background:#fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    iframe {
+      width: 100%;
+      height: 1211px; /* Keep existing height or adjust as needed */
+      border: 1px solid #ccc;
+    }
+
+    .category-section h2 {
+      margin-top: 2.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #9b4dca;
+      color: #722c8a; /* Darker shade of purple */
+      font-weight: 400; /* Slightly bolder category titles */
+    }
+
+    .problem-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .problem-item {
+      background-color: #ffffff; /* White background for cards */
+      border: 1px solid #e1e1e1; /* Lighter border */
+      border-radius: 5px; /* Slightly more rounded */
+      padding: 1.5rem 2rem; /* More horizontal padding */
+      margin-bottom: 1.5rem;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08); /* Softer shadow */
+      transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+    .problem-item:hover {
+      box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    .problem-item h4 { /* This is the "title" derived from description */
+      margin-top: 0;
+      margin-bottom: 1rem; /* More space after title */
+      color: #333;
+      font-size: 1.3em; /* Larger title */
+      font-weight: 500; /* Bolder title */
+      line-height: 1.3;
+    }
+
+    .problem-description {
+      margin-bottom: 1.5rem; /* More space after description */
+      line-height: 1.65;
+      color: #444; /* Slightly lighter than pure black for body text */
+      white-space: pre-wrap; /* Preserve line breaks from description */
+    }
+
+    .problem-meta {
+      font-size: 0.85em; /* Slightly smaller meta text */
+      color: #666; /* Lighter meta text color */
+      border-top: 1px solid #eee; /* Separator line */
+      padding-top: 1rem; /* Space above meta items */
+      margin-top: 1.5rem; /* Space between description and meta */
+    }
+
+    .problem-meta span {
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    .problem-meta span:last-child {
+      margin-bottom: 0;
+    }
+
+    .problem-meta strong {
+      color: #333;
+      font-weight: 500; /* Medium weight for labels */
+      min-width: 70px; /* Align values somewhat if desired */
+      display: inline-block; /* To allow min-width */
+      margin-right: 0.5em;
+    }
+
+    .problem-meta a {
+      color: #9b4dca;
+      text-decoration: none;
+    }
+    .problem-meta a:hover {
+      text-decoration: underline;
+    }
+
+    /* Status and Error Messages Styling */
+    #content { /* Initial loading message & status messages */
+      text-align: center;
+      padding: 2rem;
+      font-size: 1.1em;
+      color: #555;
+    }
+    .status-message { /* This class will be applied by JS to specific messages */
+      background-color: #f9f9f9;
+      border: 1px solid #e1e1e1;
+      border-radius: 4px;
+      margin-top: 2rem;
+    }
+    .error-message-text { /* Class for the main error text before the list */
+      font-weight: bold;
+      display: block;
+      margin-bottom: 1rem;
+      color: #c0392b; /* A reddish color for errors */
+    }
+    .detailed-error-list {
+      text-align: left;
+      margin-top: 1rem;
+      padding-left: 20px;
+      font-size: 0.95em;
+    }
+    .detailed-error-list li {
+      margin-bottom: 0.5rem;
+    }
+    .detailed-error-list code {
+      background-color: #eef0f1;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 0.9em;
+      border: 1px solid #dde0e1;
+    }
+    .detailed-error-list ul { /* Nested lists in error details */
+        list-style-type: disc;
+        margin-left: 20px;
+    }
   </style>
 
   <!-- Papa Parse CSV parser (included but not used by current main.js) -->
@@ -18,7 +176,6 @@
 
   <button id="openForm" class="button">+ Add a problem</button>
 
-  <!-- your Google Form embed -->
   <div id="formPane">
     <iframe
       src="https://docs.google.com/forms/d/e/1FAIpQLSeaeo0zcu-zzkvFEEltGbq_yqjVwCQaUXvd9djVX5F5oXV1_g/viewform?embedded=true"
@@ -26,10 +183,17 @@
     </iframe>
   </div>
 
-  <!-- list goes here -->
   <div id="content">Loading problems…</div>
 
-  <script src="main.js"></script> <!-- This loads your updated main.js -->
-  <script> openForm.onclick=()=>formPane.style.display=formPane.style.display==='none'?'block':'none'; </script>
+  <script src="main.js"></script>
+  <script>
+    const formButton = document.getElementById('openForm');
+    const formPane = document.getElementById('formPane');
+    formButton.onclick = () => {
+      const isHidden = formPane.style.display === 'none' || formPane.style.display === '';
+      formPane.style.display = isHidden ? 'block' : 'none';
+      formButton.textContent = isHidden ? '- Hide Form' : '+ Add a problem';
+    };
+  </script>
 </body>
 </html>
