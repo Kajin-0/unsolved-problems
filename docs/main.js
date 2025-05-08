@@ -6,9 +6,8 @@ const tabName = "Form_Responses";               // Your tab name
 const jsonURL = `https://opensheet.elk.sh/${sheetID}/${encodeURIComponent(tabName)}`;
 
 /* Target element */
-const container = document.getElementById("content");
-// Initial loading message - will be styled by #content CSS
-// container.textContent = "Loading problems…"; // Already set in HTML
+const contentContainer = document.getElementById("content");
+// Initial loading message is already in HTML
 
 /* -------------------------------------------------------------
    Fetch  → JSON  → Render
@@ -38,8 +37,10 @@ fetch(jsonURL)
     }
     return response.json();
   })
-  .then(render)
-  .catch(err => {
+  .then(renderProblems)
+  .catch(displayError);
+
+function displayError(err) {
     console.error("Detailed error fetching or parsing data:", err);
     const mainErrorText = `Could not load problems. Error: ${err.message}`;
     let checkListHTML = `
@@ -56,7 +57,7 @@ fetch(jsonURL)
           </ul>
         </li>
         <li><strong>Tab Name:</strong> Ensure the tab name in your Google Sheet is <em>exactly</em> "<code>${tabName}</code>" (case-sensitive, no extra spaces).</li>
-        <li><strong>Column Names:</strong> Your Google Sheet (the "<code>${tabName}</code>" tab) MUST have these exact column headers in the first row:
+        <li><strong>Column Names:</strong> Your Google Sheet (the "<code>${tabName}</code>" tab) MUST have these exact column headers in the first row (order matters for CSV):
           <ul>
             <li><code>Timestamp</code></li>
             <li><code>Category</code></li>
@@ -64,44 +65,37 @@ fetch(jsonURL)
             <li><code>Description</code></li>
             <li><code>Contact (email)</code></li>
           </ul>
-          (Case and spacing matter!)
         </li>
         <li><strong>Data Exists:</strong> Ensure there are some rows of data under these columns.</li>
         <li><strong>Test Direct Link:</strong> Try opening this URL directly in your browser: <a href="${jsonURL}" target="_blank" rel="noopener noreferrer">${jsonURL}</a>.
-            <ul><li>If it shows data (starts with '[' or '{'), the problem is likely in the rendering or HTML.</li>
+            <ul><li>If it shows data (starts with '[' or '{'), the problem is likely in the rendering logic or HTML.</li>
                 <li>If it shows an error (like "Requested entity was not found"), the issue is with the sheet access/publishing or names.</li>
             </ul>
         </li>
         <li>Check the browser's console (press F12, then "Console" tab) for more technical error messages.</li>
       </ol>
     `;
-    container.innerHTML = `<div class="status-message error-message"><span class="error-message-text">${mainErrorText}</span>${checkListHTML}</div>`;
-  });
+    contentContainer.innerHTML = `<div class="status-message error-message"><span class="error-message-text">${mainErrorText}</span>${checkListHTML}</div>`;
+}
 
 /* -------------------------------------------------------------
    Render helper
    ------------------------------------------------------------- */
-function render(rows){
+function renderProblems(rows){
   if (!Array.isArray(rows)) {
+    displayError(new Error("Data received from sheet is not in the expected array format."));
     console.error("Data received is not an array:", rows);
-    let errorMessage = "Received invalid data format from the sheet.";
-    if (typeof rows === 'object' && rows !== null && rows.error) {
-        errorMessage += ` Server message: ${rows.error}. This often means the sheet ID or tab name is wrong, or the sheet is not published correctly for 'opensheet.elk.sh'.`;
-    }
-    container.innerHTML = `<p class="status-message error-message">${errorMessage}</p>`;
     return;
   }
 
   if (!rows.length){
-    container.innerHTML = '<p class="status-message">No problems found in the sheet. Either the sheet is empty after the header row, or no rows have a \'Description\' value.</p>';
+    contentContainer.innerHTML = '<p class="status-message">No problems found in the sheet. Either the sheet is empty after the header row, or no problems have a \'Description\'.</p>';
     return;
   }
 
-  /* Group by Category column */
   const byCat = {};
   let validRowsFound = 0;
   rows.forEach(r => {
-    // CSV headers are: Timestamp,Category,Reward Budget,Description,Contact (email)
     if (typeof r !== 'object' || r === null || !r.Description || String(r.Description).trim() === "") {
         console.warn("Skipping row due to missing or empty Description, or invalid row format:", r);
         return;
@@ -112,29 +106,61 @@ function render(rows){
   });
 
   if (validRowsFound === 0) {
-    container.innerHTML = '<p class="status-message">No problems with descriptions were found. Make sure your \'Description\' column is populated and correctly named in the sheet.</p>';
+    contentContainer.innerHTML = '<p class="status-message">No valid problems with descriptions were found. Ensure your \'Description\' column is populated and correctly named.</p>';
     return;
   }
 
-  container.innerHTML = ""; // Clear loading/status message
+  contentContainer.innerHTML = ""; // Clear loading/status message
+
   Object.keys(byCat)
     .sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"}))
     .forEach(cat=>{
       const listItems = byCat[cat].map(r => {
-        const reward = r["Reward Budget"] || "Not specified";
-        const description = r.Description || "No description provided.";
-        const contactEmail = r["Contact (email)"] || "";
-        const timestamp = r.Timestamp ?
-            new Date(r.Timestamp).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'long', day: 'numeric'
-                //, hour: '2-digit', minute: '2-digit' // Uncomment if you want time too
-            }) : "Not specified";
+        const reward = r["Reward Budget"]?.trim() || "Not specified";
+        const description = r.Description?.trim() || "No description provided.";
+        const contactEmail = r["Contact (email)"]?.trim() || "";
+        const timestampStr = r.Timestamp?.trim();
+        let formattedTimestamp = "Not specified";
+        if (timestampStr) {
+            try {
+                // Attempt to parse common date formats, including potential M/D/YYYY H:MM:SS
+                const dateObj = new Date(timestampStr);
+                if (!isNaN(dateObj)) {
+                     formattedTimestamp = dateObj.toLocaleDateString(undefined, { // Use user's locale
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                } else {
+                    console.warn(`Could not parse timestamp: ${timestampStr}`);
+                    formattedTimestamp = timestampStr; // Show raw if parse fails
+                }
+            } catch (e) {
+                console.warn(`Error parsing timestamp: ${timestampStr}`, e);
+                formattedTimestamp = timestampStr; // Show raw on error
+            }
+        }
 
-        // Pseudo-title from the first part of the description
-        const title = description.length > 70 ? description.substring(0, 70).trim() + "..." : description;
+
+        // Create a pseudo-title from the first sentence or ~100 characters of the description
+        let title = description;
+        const firstPeriod = description.indexOf('.');
+        const firstQuestion = description.indexOf('?');
+        const firstExclamation = description.indexOf('!');
+        let endOfFirstSentence = -1;
+
+        const sentenceEnders = [firstPeriod, firstQuestion, firstExclamation].filter(i => i !== -1);
+        if (sentenceEnders.length > 0) {
+            endOfFirstSentence = Math.min(...sentenceEnders);
+        }
+
+        if (endOfFirstSentence !== -1 && endOfFirstSentence < 120) { // Prefer first sentence if not too long
+            title = description.substring(0, endOfFirstSentence + 1);
+        } else if (description.length > 100) {
+            title = description.substring(0, 100).trim() + "...";
+        }
+
 
         let contactHTML = "";
-        if (contactEmail && contactEmail.trim() !== "" && contactEmail.trim() !== "-") {
+        if (contactEmail && contactEmail !== "-") {
             contactHTML = `
                 <span class="problem-contact">
                     <strong>Contact:</strong> <a href="mailto:${contactEmail}">${contactEmail}</a>
@@ -143,18 +169,21 @@ function render(rows){
 
         return `
             <li class="problem-item">
-                <h4>${title}</h4>
+                <div class="problem-item-header">
+                    <span class="problem-category-badge">${r.Category || "Uncategorised"}</span>
+                    <h4>${title}</h4>
+                </div>
                 <p class="problem-description">${description}</p>
                 <div class="problem-meta">
                     <span class="problem-reward"><strong>Reward:</strong> ${reward}</span>
                     ${contactHTML}
-                    <span class="problem-posted"><strong>Posted:</strong> ${timestamp}</span>
+                    <span class="problem-posted"><strong>Posted:</strong> ${formattedTimestamp}</span>
                 </div>
             </li>
         `;
       }).join("");
 
-      container.insertAdjacentHTML("beforeend", `
+      contentContainer.insertAdjacentHTML("beforeend", `
           <section class="category-section">
               <h2>${cat}</h2>
               <ul class="problem-list">${listItems}</ul>
