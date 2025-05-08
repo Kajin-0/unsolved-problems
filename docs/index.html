@@ -2,107 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Open Problems</title>
-  <link rel="stylesheet" href="https://unpkg.com/milligram@1.4.1/dist/milligram.min.css" />
+  <title>Unsolved Problems Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #6a1b9a; /* Deep Purple */
+      --secondary-color: #4a148c; /* Darker Purple */
+      --accent-color: #ab47bc; /* Lighter Purple */
+      --background-color: #f9f9f9; /* Very light grey */
+      --card-background: #ffffff;
+      --text-color: #333333;
+      --text-light: #555555;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0, 0, 0, 0.08);
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'Roboto Mono', monospace;
+    }
+
     body {
-      max-width: 900px;
-      margin: auto;
-      padding: 2rem;
-      font-family: 'Roboto', sans-serif; /* Milligram default */
-      color: #333;
-      background-color: #fdfdfd;
+      font-family: var(--font-sans);
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.65;
+      margin: 0;
+      padding: 0;
     }
-    h1, h2, h3, h4 {
-      color: #1a1a1a;
-      font-weight: 300; /* Milligram uses lighter font-weight for headings */
+
+    .container {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 2rem;
     }
-    h1 {
-      margin-bottom: 2rem;
+
+    header {
       text-align: center;
-      font-weight: 500; /* Make main title bolder */
-      color: #333;
+      margin-bottom: 3rem;
+      padding-top: 2rem;
     }
-    #openForm {
+
+    header h1 {
+      font-size: 2.8em;
+      font-weight: 700;
+      color: var(--secondary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.1em;
+      color: var(--text-light);
       margin-bottom: 2rem;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      background-color: #9b4dca; /* Milligram primary color */
-      border-color: #9b4dca;
     }
-    #openForm:hover {
-      background-color: #606c76; /* Milligram secondary color for hover */
-      border-color: #606c76;
+
+    .button {
+      display: inline-block;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.8rem 1.8rem;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 2px 4px var(--shadow-color);
     }
+    .button:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-1px);
+    }
+    .button.secondary {
+        background-color: #6c757d;
+    }
+    .button.secondary:hover {
+        background-color: #5a6268;
+    }
+
     #formPane {
       display: none;
-      margin-top: 1rem;
-      margin-bottom: 2rem;
-      padding:1rem;
-      border:1px solid #eee;
-      border-radius:4px;
-      background:#fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-top: 2rem;
+      margin-bottom: 3rem;
+      padding: 2rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-background);
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+    #formPane h3 {
+        margin-top:0;
+        color: var(--primary-color);
+        font-weight: 600;
     }
     iframe {
       width: 100%;
-      height: 1211px; /* Keep existing height or adjust as needed */
-      border: 1px solid #ccc;
+      height: 1100px; /* Adjusted height */
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
     }
 
     .category-section h2 {
-      margin-top: 2.5rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid #9b4dca;
-      color: #722c8a; /* Darker shade of purple */
-      font-weight: 400; /* Slightly bolder category titles */
+      font-size: 2em;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-top: 3.5rem;
+      margin-bottom: 1.8rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 3px solid var(--accent-color);
     }
 
     .problem-list {
       list-style: none;
       padding-left: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* Responsive grid */
+      gap: 2rem;
     }
 
     .problem-item {
-      background-color: #ffffff; /* White background for cards */
-      border: 1px solid #e1e1e1; /* Lighter border */
-      border-radius: 5px; /* Slightly more rounded */
-      padding: 1.5rem 2rem; /* More horizontal padding */
-      margin-bottom: 1.5rem;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.08); /* Softer shadow */
-      transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+      background-color: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      transition: box-shadow 0.25s ease-in-out, transform 0.25s ease-in-out;
+      display: flex;
+      flex-direction: column;
     }
     .problem-item:hover {
-      box-shadow: 0 5px 12px rgba(0,0,0,0.12);
-      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+      transform: translateY(-4px);
     }
 
-    .problem-item h4 { /* This is the "title" derived from description */
+    .problem-item-header h4 { /* Title */
       margin-top: 0;
-      margin-bottom: 1rem; /* More space after title */
-      color: #333;
-      font-size: 1.3em; /* Larger title */
-      font-weight: 500; /* Bolder title */
+      margin-bottom: 0.75rem;
+      font-size: 1.4em;
+      font-weight: 600;
+      color: var(--secondary-color);
       line-height: 1.3;
     }
+    .problem-item-header .problem-category-badge {
+        display: inline-block;
+        background-color: #e9ecef;
+        color: var(--text-light);
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        font-weight: 500;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
 
     .problem-description {
-      margin-bottom: 1.5rem; /* More space after description */
-      line-height: 1.65;
-      color: #444; /* Slightly lighter than pure black for body text */
-      white-space: pre-wrap; /* Preserve line breaks from description */
+      margin-bottom: 1.5rem;
+      font-size: 0.95em;
+      color: var(--text-light);
+      flex-grow: 1; /* Allows description to take available space */
+      white-space: pre-wrap; /* Preserve line breaks */
     }
 
     .problem-meta {
-      font-size: 0.85em; /* Slightly smaller meta text */
-      color: #666; /* Lighter meta text color */
-      border-top: 1px solid #eee; /* Separator line */
-      padding-top: 1rem; /* Space above meta items */
-      margin-top: 1.5rem; /* Space between description and meta */
+      font-size: 0.85em;
+      color: #666;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 1rem;
+      margin-top: auto; /* Pushes meta to bottom if card height varies */
     }
-
     .problem-meta span {
       display: block;
       margin-bottom: 0.6rem;
@@ -110,41 +177,42 @@
     .problem-meta span:last-child {
       margin-bottom: 0;
     }
-
     .problem-meta strong {
-      color: #333;
-      font-weight: 500; /* Medium weight for labels */
-      min-width: 70px; /* Align values somewhat if desired */
-      display: inline-block; /* To allow min-width */
-      margin-right: 0.5em;
+      color: var(--text-color);
+      font-weight: 500;
+      min-width: 70px;
+      display: inline-block;
     }
-
     .problem-meta a {
-      color: #9b4dca;
+      color: var(--primary-color);
       text-decoration: none;
+      font-weight: 500;
     }
     .problem-meta a:hover {
       text-decoration: underline;
+      color: var(--secondary-color);
     }
 
     /* Status and Error Messages Styling */
-    #content { /* Initial loading message & status messages */
+    #content {
       text-align: center;
       padding: 2rem;
       font-size: 1.1em;
       color: #555;
     }
-    .status-message { /* This class will be applied by JS to specific messages */
-      background-color: #f9f9f9;
-      border: 1px solid #e1e1e1;
-      border-radius: 4px;
+    .status-message {
+      background-color: #f8f9fa;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
       margin-top: 2rem;
+      padding: 1.5rem;
     }
-    .error-message-text { /* Class for the main error text before the list */
-      font-weight: bold;
+    .error-message-text {
+      font-weight: 600;
       display: block;
       margin-bottom: 1rem;
-      color: #c0392b; /* A reddish color for errors */
+      color: #dc3545; /* Bootstrap danger color */
+      font-size: 1.2em;
     }
     .detailed-error-list {
       text-align: left;
@@ -152,47 +220,64 @@
       padding-left: 20px;
       font-size: 0.95em;
     }
-    .detailed-error-list li {
-      margin-bottom: 0.5rem;
-    }
+    .detailed-error-list li { margin-bottom: 0.5rem; }
     .detailed-error-list code {
       background-color: #eef0f1;
       padding: 0.2em 0.4em;
       border-radius: 3px;
       font-size: 0.9em;
       border: 1px solid #dde0e1;
+      font-family: var(--font-mono);
     }
-    .detailed-error-list ul { /* Nested lists in error details */
-        list-style-type: disc;
-        margin-left: 20px;
+    .detailed-error-list ul { list-style-type: disc; margin-left: 20px; }
+
+    footer {
+        text-align: center;
+        padding: 2rem;
+        margin-top: 3rem;
+        font-size: 0.9em;
+        color: var(--text-light);
+        border-top: 1px solid var(--border-color);
     }
   </style>
-
-  <!-- Papa Parse CSV parser (included but not used by current main.js) -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-  <h1>Open Problems</h1>
+  <div class="container">
+    <header>
+      <h1>Unsolved Problems Board</h1>
+      <p>A community-driven list of intriguing challenges awaiting solutions.</p>
+      <button id="openFormButton" class="button">+ Add a New Problem</button>
+    </header>
 
-  <button id="openForm" class="button">+ Add a problem</button>
+    <div id="formPane">
+      <h3>Submit Your Unsolved Problem</h3>
+      <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLSeaeo0zcu-zzkvFEEltGbq_yqjVwCQaUXvd9djVX5F5oXV1_g/viewform?embedded=true"
+        loading="lazy">
+      </iframe>
+    </div>
 
-  <div id="formPane">
-    <iframe
-      src="https://docs.google.com/forms/d/e/1FAIpQLSeaeo0zcu-zzkvFEEltGbq_yqjVwCQaUXvd9djVX5F5oXV1_g/viewform?embedded=true"
-      loading="lazy">
-    </iframe>
+    <main id="content">
+      <p>Loading problems, please wait...</p>
+    </main>
+
+    <footer>
+        <p>© <span id="currentYear"></span> Your Name/Organization. Powered by open data.</p>
+    </footer>
   </div>
-
-  <div id="content">Loading problems…</div>
 
   <script src="main.js"></script>
   <script>
-    const formButton = document.getElementById('openForm');
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    const formButton = document.getElementById('openFormButton');
     const formPane = document.getElementById('formPane');
     formButton.onclick = () => {
       const isHidden = formPane.style.display === 'none' || formPane.style.display === '';
       formPane.style.display = isHidden ? 'block' : 'none';
-      formButton.textContent = isHidden ? '- Hide Form' : '+ Add a problem';
+      formButton.textContent = isHidden ? '– Hide Form' : '+ Add a New Problem';
+      if(isHidden) {
+          formPane.scrollIntoView({ behavior: 'smooth' });
+      }
     };
   </script>
 </body>
