@@ -9,6 +9,29 @@ const jsonURL = `https://opensheet.elk.sh/${sheetID}/${encodeURIComponent(tabNam
 const contentContainer = document.getElementById("content");
 
 /* -------------------------------------------------------------
+   Helper function to linkify URLs in text
+   ------------------------------------------------------------- */
+function linkify(inputText) {
+    let replacedText;
+
+    // URLs starting with http://, https://, or ftp://
+    const urlPattern = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+    replacedText = inputText.replace(urlPattern, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    // URLs starting with "www." (without // before it, or it'd re-link the already linked)
+    const wwwPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    replacedText = replacedText.replace(wwwPattern, '$1<a href="http://$2" target="_blank" rel="noopener noreferrer">$2</a>');
+
+    // Email addresses
+    // const emailPattern = /([\w.-]+@[\w.-]+\.[\w.-]+)/gim;
+    // replacedText = replacedText.replace(emailPattern, '<a href="mailto:$1">$1</a>');
+    // Decided against auto-linking emails in description as there's a dedicated contact field.
+
+    return replacedText;
+}
+
+
+/* -------------------------------------------------------------
    Fetch  → JSON  → Render
    ------------------------------------------------------------- */
 fetch(jsonURL)
@@ -117,7 +140,10 @@ function renderProblems(rows){
     .forEach(cat=>{
       const listItems = byCat[cat].map(r => {
         const reward = r["Reward Budget"]?.trim() || "Not specified";
-        const description = r.Description?.trim() || "No description provided.";
+        let description = r.Description?.trim() || "No description provided.";
+        // Linkify URLs in the description
+        description = linkify(description); // <<< APPLY LINKIFY FUNCTION HERE
+
         const contactEmail = r["Contact (email)"]?.trim() || "";
         const problemSubject = r["Problem Subject"]?.trim() || "Untitled Problem";
         const timestampStr = r.Timestamp?.trim();
@@ -148,13 +174,14 @@ function renderProblems(rows){
                 </span>`;
         }
 
+        // Note: The 'description' variable below now contains HTML with linked URLs
         return `
             <li class="problem-item">
                 <div class="problem-item-header">
                     <span class="problem-category-badge">${r.Category || "Uncategorised"}</span>
                     <h4>${problemSubject}</h4>
                 </div>
-                <p class="problem-description">${description}</p>
+                <p class="problem-description">${description}</p> {/* This 'description' now has <a> tags */}
                 <div class="problem-meta">
                     <span class="problem-reward"><strong>Reward:</strong> ${reward}</span>
                     ${contactHTML}
@@ -183,20 +210,9 @@ function makeCategoriesCollapsible() {
     categoryHeadings.forEach(heading => {
         const problemListContainer = heading.nextElementSibling;
 
-        // Start all categories collapsed (problemListContainer does not have 'expanded' initially)
-        // and heading does not have 'expanded'
-
         heading.addEventListener('click', () => {
             const isExpanded = problemListContainer.classList.contains('expanded');
             
-            // Optional: Close other expanded categories
-            // categoryHeadings.forEach(otherHeading => {
-            //     if (otherHeading !== heading) {
-            //         otherHeading.classList.remove('expanded');
-            //         otherHeading.nextElementSibling.classList.remove('expanded');
-            //     }
-            // });
-
             if (isExpanded) {
                 problemListContainer.classList.remove('expanded');
                 heading.classList.remove('expanded');
