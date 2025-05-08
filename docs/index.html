@@ -176,11 +176,11 @@
     }
 
     .problem-item {
-      background-color: var(--card-background); /* Already white, but can be different for emphasis */
-      border: 1px solid #e8e8e8; /* Slightly lighter border for cards inside */
+      background-color: var(--card-background);
+      border: 1px solid #e8e8e8;
       border-radius: 6px;
-      padding: 1.8rem; /* Adjusted padding */
-      box-shadow: 0 3px 6px rgba(0,0,0,0.06); /* Softer shadow for cards */
+      padding: 1.8rem;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.06);
       transition: box-shadow 0.25s ease-in-out, transform 0.25s ease-in-out;
       display: flex;
       flex-direction: column;
@@ -190,17 +190,17 @@
       transform: translateY(-3px);
     }
 
-    .problem-item-header h4 { /* Title */
+    .problem-item-header h4 {
       margin-top: 0;
       margin-bottom: 0.75rem;
-      font-size: 1.3em; /* Slightly adjusted */
+      font-size: 1.3em;
       font-weight: 600;
       color: var(--secondary-color);
       line-height: 1.3;
     }
     .problem-item-header .problem-category-badge {
         display: inline-block;
-        background-color: #f1f3f5; /* Lighter badge background */
+        background-color: #f1f3f5;
         color: var(--text-light);
         padding: 0.25em 0.6em;
         font-size: 0.75em;
@@ -209,13 +209,14 @@
         margin-bottom: 1rem;
     }
 
-
     .problem-description {
       margin-bottom: 1.5rem;
       font-size: 0.95em;
       color: var(--text-light);
       flex-grow: 1;
-      white-space: pre-wrap;
+      white-space: pre-wrap; /* Preserves line breaks from input */
+      overflow-wrap: break-word; /* Prevents overflow from long strings like URLs */
+      word-wrap: break-word;     /* Older alias for overflow-wrap */
     }
 
     .problem-meta {
@@ -251,7 +252,7 @@
     /* Status and Error Messages Styling */
     #content {
       text-align: center;
-      padding: 2rem 0; /* Remove side padding as container has it */
+      padding: 2rem 0;
       font-size: 1.1em;
       color: #555;
     }
