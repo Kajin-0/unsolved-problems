@@ -96,12 +96,8 @@ function renderProblems(rows){
   const byCat = {};
   let validRowsFound = 0;
   rows.forEach(r => {
-    // ***** DEBUGGING: Log the raw row object *****
-    console.log("Processing row data:", r); 
-    // ********************************************
-
     if (typeof r !== 'object' || r === null || !r.Description || String(r.Description).trim() === "") {
-        console.warn("Skipping row due to missing or empty Description, or invalid row format:", r);
+        // console.warn("Skipping row due to missing or empty Description, or invalid row format:", r);
         return;
     }
     const cat = (r.Category || "Uncategorised").trim();
@@ -135,11 +131,11 @@ function renderProblems(rows){
                         year: 'numeric', month: 'long', day: 'numeric'
                     });
                 } else {
-                    console.warn(`Could not parse timestamp: ${timestampStr}`);
+                    // console.warn(`Could not parse timestamp: ${timestampStr}`);
                     formattedTimestamp = timestampStr;
                 }
             } catch (e) {
-                console.warn(`Error parsing timestamp: ${timestampStr}`, e);
+                // console.warn(`Error parsing timestamp: ${timestampStr}`, e);
                 formattedTimestamp = timestampStr;
             }
         }
@@ -168,11 +164,46 @@ function renderProblems(rows){
         `;
       }).join("");
 
-      contentContainer.insertAdjacentHTML("beforeend", `
+      const sectionHTML = `
           <section class="category-section">
               <h2>${cat}</h2>
-              <ul class="problem-list">${listItems}</ul>
+              <div class="problem-list-container">
+                  <ul class="problem-list">${listItems}</ul>
+              </div>
           </section>
-      `);
+      `;
+      contentContainer.insertAdjacentHTML("beforeend", sectionHTML);
+    });
+
+  makeCategoriesCollapsible();
+}
+
+function makeCategoriesCollapsible() {
+    const categoryHeadings = contentContainer.querySelectorAll('.category-section h2');
+    categoryHeadings.forEach(heading => {
+        const problemListContainer = heading.nextElementSibling;
+
+        // Start all categories collapsed (problemListContainer does not have 'expanded' initially)
+        // and heading does not have 'expanded'
+
+        heading.addEventListener('click', () => {
+            const isExpanded = problemListContainer.classList.contains('expanded');
+            
+            // Optional: Close other expanded categories
+            // categoryHeadings.forEach(otherHeading => {
+            //     if (otherHeading !== heading) {
+            //         otherHeading.classList.remove('expanded');
+            //         otherHeading.nextElementSibling.classList.remove('expanded');
+            //     }
+            // });
+
+            if (isExpanded) {
+                problemListContainer.classList.remove('expanded');
+                heading.classList.remove('expanded');
+            } else {
+                problemListContainer.classList.add('expanded');
+                heading.classList.add('expanded');
+            }
+        });
     });
 }
